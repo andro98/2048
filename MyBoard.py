@@ -259,18 +259,64 @@ def positionOfMaxValueHeuristic(grid):
     else:
         return -5000
 
+def monotonicityHeurictic(grid):
+    monotonicityScores = [0, 0, 0, 0]
+
+    # left/right direction
+    for i in range(4):
+        current = 0
+        next = current + 1
+        while next < 4:
+            while next < 4 and grid[i*4 + next] == 0:
+                next += 1
+
+            if next >= 4:
+                next -= 1
+            currentValue = grid[i*4 + current]
+            nextValue = grid[i*4 + next]
+
+            if currentValue > nextValue:
+                monotonicityScores[0] += nextValue - currentValue
+            elif nextValue > currentValue:
+                monotonicityScores[1] += currentValue - nextValue
+
+            current = next
+            next += 1
+
+    #up/down direction
+        for i in range(4):
+            current = 0
+            next = current + 4
+            while next < 4:
+                while next < 4 and grid[i + 4*next] == 0:
+                    next += 1
+
+                if next >= 4:
+                    next -= 1
+                currentValue = grid[i + 4*current]
+                nextValue = grid[i + 4*next]
+
+                if currentValue > nextValue:
+                    monotonicityScores[2] += nextValue - currentValue
+                elif nextValue > currentValue:
+                    monotonicityScores[3] += currentValue - nextValue
+            current = next
+            next += 1
+
+    return 20* max(monotonicityScores[0], monotonicityScores[1]) + max(monotonicityScores[2], monotonicityScores[3])
+
 # Function returning score of the given graph
 # Feel free to modify it and play with the constants :)
 def getScore(grid):
     emptyTilesScore = emptyScoreHer(grid) * 100
     maxValueScore = maxNumHer(grid) * 4
     weightedTilesScore = weightedTilesHeuristic(grid)
-
+    monotonicityScore = monotonicityHeurictic(grid) * 40
     positionOfMaxValueScore = positionOfMaxValueHeuristic(grid) * 5
     smoothnessScore = smoothnessHeuristic(grid) * 10
     # Exemplary score, try to modify it along with constants above
     # Little change can make huge difference
-    return weightedTilesScore + maxValueScore + emptyTilesScore + smoothnessScore + positionOfMaxValueScore
+    return weightedTilesScore + maxValueScore + emptyTilesScore + smoothnessScore + positionOfMaxValueScore + monotonicityScore
 
 
 # print(swipeRow([2, 0, 2, 2]))
